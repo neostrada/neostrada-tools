@@ -22,4 +22,4 @@ Go to the following page to manage DNS records:
 ### Manage domain redirection
 Go to the following page to manage domain redirection:
 
-`/index.php?m=ntools&a=dns&d=DOMAIN_ID`
+`/index.php?m=ntools&a=redirect&d=DOMAIN_ID`
