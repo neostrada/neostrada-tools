@@ -73,22 +73,29 @@ function ntools_clientarea($params) {
                 if (isset($_POST['edit_records'])) {
                     if ($result = editRecords($api_key, $api_secret, $domain)) {
                         if (isset($result['error'])) {
-                            $message = array('type' => 'danger', 'content' => $result['error']);
+                            $_SESSION['ntools_message'] = array('type' => 'danger', 'content' => $result['error']);
                         } elseif (isset($result['success'])) {
-                            $message = array('type' => 'success', 'content' => $result['success']);
+                            $_SESSION['ntools_message'] = array('type' => 'success', 'content' => $result['success']);
                         } else {
-                            $message = array('type' => 'danger', 'content' => 'Er is iets fout gegaan.');
+                            $_SESSION['ntools_message'] = array('type' => 'danger', 'content' => 'Er is iets fout gegaan.');
                         }
                     } else {
-                        $message = array('type' => 'danger', 'content' => 'De records konden niet gewijzigd worden.');
+                        $_SESSION['ntools_message'] = array('type' => 'danger', 'content' => 'De records konden niet gewijzigd worden.');
                     }
-
-                    $records    = getRecords($api_key, $api_secret, $domain);
-                    $vars       = array('message' => $message, 'domain' => $domain, 'records' => $records, 'types' => $types, 'domain_id' => $domain_id);
-                } else {
-                    $records    = getRecords($api_key, $api_secret, $domain);
-                    $vars       = array('domain' => $domain, 'records' => $records, 'types' => $types, 'domain_id' => $domain_id);
+                    
+                    header('Location: index.php?m=ntools&a=dns&d=' . $domain_id);
+                    exit;
                 }
+                
+                if (isset($_SESSION['ntools_message'])) {
+                    $message = $_SESSION['ntools_message'];
+                    unset($_SESSION['ntools_message']);
+                } else {
+                    $message = array();
+                }
+
+                $records    = getRecords($api_key, $api_secret, $domain);
+                $vars       = array('message' => $message, 'domain' => $domain, 'records' => $records, 'types' => $types, 'domain_id' => $domain_id);
 
                 return array(
                     'pagetitle'     => 'DNS beheer',
@@ -114,9 +121,11 @@ function ntools_clientarea($params) {
                 );
             } else {
                 if (deleteRecord($api_key, $api_secret, $domain, $record_id)) {
-                    die('true');
+                    echo json_encode(array('success' => true, 'message' => 'Record successfully deleted.'));
+                    exit;
                 } else {
-                    die('false');
+                    echo json_encode(array('success' => false, 'message' => 'Record not deleted.'));
+                    exit;
                 }
             }
         }
@@ -141,24 +150,30 @@ function ntools_clientarea($params) {
                 if (isset($_POST['manage_redirect'])) {
                     if ($result = setRedirect($api_key, $api_secret, $domain)) {
                         if (isset($result['error'])) {
-                            $message = array('type' => 'danger', 'content' => $result['error']);
+                            $_SESSION['ntools_message'] = array('type' => 'danger', 'content' => $result['error']);
                         } elseif (isset($result['success'])) {
-                            $message = array('type' => 'success', 'content' => $result['success']);
+                            $_SESSION['ntools_message'] = array('type' => 'success', 'content' => $result['success']);
                         } else {
-                            $message = array('type' => 'danger', 'content' => 'Er is iets fout gegaan.');
+                            $_SESSION['ntools_message'] = array('type' => 'danger', 'content' => 'Er is iets fout gegaan.');
                         }
                     } else {
-                        $message = array('type' => 'danger', 'content' => 'De redirect kon niet bijgewerkt worden.');
+                        $_SESSION['ntools_message'] = array('type' => 'danger', 'content' => 'De redirect kon niet bijgewerkt worden.');
                     }
-
-                    $redirect   = getRedirect($api_key, $api_secret, $domain);
-                    $delete     = (!empty($redirect['redirecturl']) ? true : false);
-                    $vars       = array('message' => $message, 'domain' => $domain, 'domain_id' => $domain_id, 'redirect' => $redirect['redirecturl'], 'type' => $redirect['redirecttype'], 'delete' => $delete);
-                } else {
-                    $redirect   = getRedirect($api_key, $api_secret, $domain);
-                    $delete     = (!empty($redirect['redirecturl']) ? true : false);
-                    $vars       = array('domain' => $domain, 'domain_id' => $domain_id, 'redirect' => $redirect['redirecturl'], 'type' => $redirect['redirecttype'], 'delete' => $delete);
+                    
+                    header('Location: index.php?m=ntools&a=redirect&d=' . $domain_id);
+                    exit;
                 }
+                
+                if (isset($_SESSION['ntools_message'])) {
+                    $message = $_SESSION['ntools_message'];
+                    unset($_SESSION['ntools_message']);
+                } else {
+                    $message = array();
+                }
+
+                $redirect   = getRedirect($api_key, $api_secret, $domain);
+                $delete     = !empty($redirect['redirecturl']) ? true : false;
+                $vars       = array('message' => $message, 'domain' => $domain, 'domain_id' => $domain_id, 'redirect' => $redirect['redirecturl'], 'type' => $redirect['redirecttype'], 'delete' => $delete);
 
                 return array(
                     'pagetitle'     => 'Redirect',

@@ -82,8 +82,8 @@
 
     <script>
         // Add new row.
+        var row = 1;
         $('#records').on('click', 'button.add', function() {
-            var row = 1;
             $('.table').append(
                     '<tr>' +
                     '<td><input type="text" name="add[' + row + '][name]" class="form-control"></td>' +
@@ -110,13 +110,13 @@
             // Attribute 'data-id' exists, so both table row and record will be deleted.
             if (typeof attr !== typeof undefined && attr !== false) {
                 $.get('index.php?m=ntools&a=dns', { d: domain_id, r: attr }, function(response) {
-                    if (response == 'true') {
+                    if (response.success) {
                         $(thisElement).closest('tr').remove();
                     } else {
                         thisElement.prop('disabled', false);
-                        alert('The record was not deleted.');
+                        alert(response.message);
                     }
-                });
+                }, 'json');
             // Delete the row when it's empty.
             } else {
                 $(this).closest('tr').remove();

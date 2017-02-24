@@ -38,6 +38,10 @@ function domainInSystem($key, $secret, $user_id, $domain_id) {
 
     // Check if domain exists in account at Neostrada.
     if ($results['code'] == 200) {
+        if (is_array($domain) && count($domain) == 1) {
+            $domain = $domain[0];
+        }
+        
         if (!in_array($domain, $results['domains'])) {
             return false;
         }
@@ -158,8 +162,12 @@ function editRecords($key, $secret, $domain) {
     // Reorder the array for use with the API and check if the selected type is accepted.
     $records = array();
     foreach ($_POST['records'] as $id => $record) {
-        if (empty($record['name']) || empty($record['type']) || empty($record['content']) || empty($record['ttl'])) {
-            return array('error' => 'Voer a.u.b. alle velden in.');
+        if (empty($record['name']) || empty($record['type']) || empty($record['content'])) {
+            return array('error' => 'Voer een naam, een type en de inhoud in.');
+        }
+        
+        if (empty($record['ttl']) || !is_numeric($record['ttl'])) {
+            return array('error' => 'De TTL mag niet lager zijn dan 1.');
         }
 
         if (!in_array($record['type'], $types)) {
