@@ -69,7 +69,7 @@ function getRecords($key, $secret, $domain) {
         'extension' => $ext
     ));
     $API->execute();
-
+    
     // Store the results.
     $results = $API->fetch();
 
@@ -77,7 +77,12 @@ function getRecords($key, $secret, $domain) {
     if ($results['code'] == 200) {
         $records = array();
         foreach ($results['dns'] as $result) {
-            list($rowid, $name, $type, $content, $ttl, $prio) = explode(';', $result);
+            list($rowid, $name, $type, $content) = explode(';', $result, 4);
+            
+            $content = explode(';', $content);
+            $prio = array_pop($content);
+            $ttl = array_pop($content);
+            $content = implode(';', $content);
 
             $records[$rowid]['name']         = $name;
             $records[$rowid]['type']         = $type;
@@ -85,6 +90,7 @@ function getRecords($key, $secret, $domain) {
             $records[$rowid]['ttl']          = $ttl;
             $records[$rowid]['prio']         = $prio;
         }
+
         return $records;
     }
 
